@@ -1,5 +1,5 @@
 import {Builder} from './builder';
-import {Compiler} from './compiler';
+import { Evaluator} from './evaluator';
 
 let b = new Builder();
 

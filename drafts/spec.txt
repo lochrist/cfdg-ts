@@ -1,0 +1,150 @@
+startshape fract
+
+rule fract {
+TRIANGLE { }
+fract { y .288 s .5 b 1}
+fract { s .5 r 180 b -1 }
+fract { x -.25 y -.144 s .5 b 1}
+fract { x .25 y -.144 s .5 b 1}
+}
+rule fract .5 {}
+
+
+----------------------
+
+{
+ startshape: "fract",
+ fract:
+ [
+  { weight: 1, draw:
+   [
+    {shape:"TRIANGLE"},
+    {shape:"fract", y: .288, s:.5, b:1},
+    {shape:"fract", s: .5, r:180, b:-1},
+    {shape:"fract", x:-.25, y:-.144 s:.5, b:-1},
+    {shape:"fract", x: .25, y: -.144, s:.5, b:1},
+   ]
+  },
+  { weight: .5, draw:[] }
+ ]
+}
+
+---------------------------
+startshape tree
+
+rule tree {
+    CIRCLE { s .5 1.2 }
+    tree { s .97 y .3 r 3}
+}
+rule tree .1 { 
+    tree { flip 90 } }
+rule tree .1 { 
+    tree { r 10 } 
+    tree { r -30 s .6} }
+
+---
+{
+	startshape: "tree",
+	tree:
+	[
+		{weight: 1, draw:[
+			{shape: "CIRCLE", s:[.5, 1.2]},
+			{shape: "tree", s:.97, y:.3, r:3},
+		]},
+		{weight: .1, draw:[{shape: "tree", flip:90 }]},
+		{weight: .1, draw:[
+			{shape: "tree", r:10},
+			{shape: "tree", r: -30, s:.6}
+		]}
+	]
+}
+
+
+
+----------------------
+
+startshape aza
+
+rule aza {
+  TRIANGLE{}
+}
+
+---
+
+{
+  startshape: "aza",
+  aza:
+  [
+  	{weight: 1, draw:[{shape:"TRIANGLE"}]}
+  ]
+}
+
+----------------------
+
+startshape TOC
+
+rule TOC
+{
+	// a "rule" statement says how
+	// to compose a shape out of
+	// other shapes
+
+    CHAPTER1 [ x 0 y 0 ]
+
+}
+
+rule CHAPTER1
+{
+    SQUARE [ x 2 y 5 size 3 ]
+    CIRCLE [ x 6 y 5 size 3 ]
+    TRIANGLE [ x 4 y 2 size 3 ]
+
+}
+
+---
+
+{
+  startshape: "TOC",
+  rules: {
+    TOC:[
+  	{
+        weight: 1,
+        replacements:[
+            {
+                rule: 'CHAPTER1'
+                x: 0,
+                y: 0
+            }
+        ]
+    }
+  ],
+
+  CHAPTER1: [
+  	{
+        weight: 1,
+        replacements:[
+            {
+                rule: 'SQUARE'
+                x: 2,
+                y: 5,
+                size: 3
+            },
+            {
+                rule: 'CIRCLE'
+                x: 6,
+                y: 5,
+                size: 3
+            },
+            {
+                rule: 'TRIANGLE'
+                x: 4,
+                y: 2,
+                size: 3
+            }
+        ]
+    }
+  ],
+  }
+  
+
+}

@@ -12,6 +12,9 @@
   },
 
   "types": [
+    "node_modules/es6-collections",
+    "node_modules/es6-promises",
+    "node_modules/jasmine"
   ],
 
   "exclude": [

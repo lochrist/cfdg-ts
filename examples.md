@@ -1,4 +1,11 @@
 ```
+// some syntax:
+
+
+
+```
+
+```
 // testing site: http://alpico.la/contextfree.js/
 // Tree
 startshape SCALE
@@ -282,5 +289,59 @@ rule spiral .01 {
  TRIANGLE{ }
  spiral{ y 1.5 r 10 s .95}
  spiral{ y 1.5 r 10 s .95 flip 90}
+}
+```
+
+```
+// starshape
+startshape D
+
+rule D
+{
+  C {r 15}
+  C {r 45}
+}
+
+rule C
+{
+  B {}
+  B {f -90}
+}
+
+rule C
+{
+  B {f -100}
+}
+
+rule B
+{
+  A {}
+  A {r 60 hue 150}
+  A { r 120 }
+  A { r 180 hue 150}
+  A { r 240 }
+  A { r 300 hue 150}
+}
+
+rule B
+{
+  A {}
+  A {r 60}
+  A { r 120 }
+  A { r 180 }
+  A { r 240 }
+  A { r 300 }
+}
+
+rule A
+{
+  CIRCLE {s 1 .0006 b .5 sat .5 a .9}
+  A {x .9 r 120.21 s .99 b .0005 h -1}
+}
+
+rule A
+{
+  CIRCLE {s 1 .0006 b .5 sat .5 a .9}
+  A {x .9 r 120.21 s .99 b .0005 h 2 }
 }
 ```

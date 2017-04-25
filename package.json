@@ -1,0 +1,17 @@
+{
+  "name": "cfdg-ts",
+  "displayName": "cfdg-ts",
+  "version": "0.0.1",
+  "description": "cfdg-ts",
+  "license": "MIT",
+  "author": {
+    "url": "https://github.com/lochrist",
+    "name": "Sebastien Phaneuf",
+    "email": "lochrist@yahoo.com"
+  },
+  "dependencies": {
+    "@types/es6-collections": "^0.5.30",
+    "@types/es6-promise": "0.0.32",
+    "@types/jasmine": "^2.5.47"
+  }
+}
