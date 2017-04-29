@@ -98,11 +98,11 @@ export class Rule {
             this.hsv[1] = this.getArg(data, 0, 'sat', 'saturation');
             this.hsv[2] = this.getArg(data, 0, 'b', 'brightness');
             this.alpha = this.getArg(data, 1, 'a', 'alpha');
-        } else if (s.length === 3) {
-            this.hsv = h.slice(3);
+        } else if (h.length === 3) {
+            this.hsv = h.slice(0, 3);
             this.alpha = this.getArg(data, 1, 'a', 'alpha');
-        } else if (s.length === 4) {
-            this.hsv = h.slice(3);
+        } else if (h.length === 4) {
+            this.hsv = h.slice(0, 3);
             this.alpha = h[3];
         }
 
