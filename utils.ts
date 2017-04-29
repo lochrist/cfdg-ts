@@ -56,7 +56,7 @@ export namespace utils {
         return color;
     };
 
-    function hsv2rgb(h: number, s: number, v: number, a: number) : Array<number> {
+    export function hsv2rgb(h: number, s: number, v: number, a: number) : Array<number> {
         let r, g, b;
         if (s == 0) {
             r = g = b = Math.round(v * 0xff);

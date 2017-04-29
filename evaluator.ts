@@ -23,12 +23,22 @@
  * 
  */
 
+import './config';
 import * as _ from 'lodash';
 import {utils} from './utils';
 
-class Rule {
+export class Test {
+    foin: any;
+    constructor() {
+        console.log('pow');
+        this.foin = _.merge({}, {a: 1});
+    }
+}
+
+export class Rule {
     name: string;
     weight: number;
+
     x?: number;
     y?: number;
     z?: number;
@@ -38,33 +48,33 @@ class Rule {
     rotate?: number;
     flip?: number;
     skew?: number;
-    hsv?: Array<number>;
     alpha?: number;
-    targetHsv?: Array<number>;
-    replacements?: Array<Rule>;
-    posAdjustment: Array<number>;
 
-    constructor (name: string, data: any) {
-        this.name = name;
+    replacements: Array<Rule>;
+    transform: Array<number>;
+    hsv: Array<number>;
+
+    constructor (data: any) {
+        this.name = data.name;
         this.weight = data.weight || 1;
         
         this.x = this.getArg(data, 0, 'x');
         this.y = this.getArg(data, 0, 'y');
         // this.z = this.getArg(data, 0, 'z');
-        this.posAdjustment = utils.adjustTransform(utils.identity(), [1, 0, 0, 1, this.x, this.y]);
+        this.transform = utils.adjustTransform(utils.identity(), [1, 0, 0, 1, this.x, this.y]);
 
         this.rotate = this.getArg(data, null, 'r', 'rotate');
         if (this.rotate !== null) {
             let cosTheta = Math.cos(-2 * Math.PI * this.rotate / 360);
             let sinTheta = Math.sin(-2 * Math.PI * this.rotate / 360);
-            this.posAdjustment = utils.adjustTransform(
-                this.posAdjustment, 
+            this.transform = utils.adjustTransform(
+                this.transform, 
                 [cosTheta, -sinTheta, sinTheta, cosTheta, 0, 0]);
         }
 
         let s = this.getArg(data, null, 's', 'size');
         if (s !== null) {
-            if (_.isNumber(s)) {
+            if (typeof s === 'number') {
                 this.sx = this.sy = this.sz = s;
             } else if (s.length == 2) {
                 this.sx = s[0]
@@ -73,8 +83,8 @@ class Rule {
                 this.sx = s[0]
                 this.sy = s[1];
             }
-            this.posAdjustment = utils.adjustTransform(
-                this.posAdjustment,
+            this.transform = utils.adjustTransform(
+                this.transform,
                 [this.sx, 0, 0, this.sy, 0, 0]);
         }
 
@@ -83,7 +93,7 @@ class Rule {
 
         this.hsv = [0, 0, 0];
         let h = this.getArg(data, [0, 0, 0], 'h', 'hue');
-        if (_.isNumber(h)) {
+        if (typeof h === 'number') {
             this.hsv[0] = h;
             this.hsv[1] = this.getArg(data, 0, 'sat', 'saturation');
             this.hsv[2] = this.getArg(data, 0, 'b', 'brightness');
@@ -96,10 +106,10 @@ class Rule {
             this.alpha = h[3];
         }
 
-        // TODO support for target
-
-
-
+        this.replacements = [];
+        if (data.replacements) {
+            this.replacements = data.replacements.map(r => new Rule(r));
+        }
     }
 
     getArg(data: any, defaultValue: any, ...argNames) : any {
@@ -118,7 +128,6 @@ interface Grammar {
     // size : need clip support
     rules: Map<string, Array<Rule>>;
 }
-
 
 export class Evaluator {
     _grammar: Grammar;

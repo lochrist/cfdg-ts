@@ -44,23 +44,3 @@ let p = new Program({background: 'red'})
     ]);
 
 p.render();
-
-
-let p = new Program({ background: 'red' })
-    .rule('scale', [
-        draw('c').sat(0.8).brightness(1)
-    ])
-    .rule('c', [
-        square({ r: 3 }),
-        circle({ y: 1, s: 5 }),
-        circle({ x: 1, s: 5 }),
-        circle({ y: 1 }),
-        square({ y: 3, s: 1.2, r: 45 }),
-        draw('c', { x: 2, s: 0.5, r: 0.5 })
-    ])
-    .rule('c', 0.3, [
-        circle()
-    ]),
-    .rule('c', 0.2, [
-    draw('c', { rotate: -10, s: 0.1 })
-]);
