@@ -1,3 +1,4 @@
+///<reference path='../node_modules/definitely-typed-requirejs/require.d.ts' />
 require.config({
     baseUrl: '../dist',
 
@@ -12,6 +13,6 @@ require.config({
 
 require(['jasmine-boot'], function () {
     require(['tests/spec'], function () {
-        window.onload();
+        window.onload(null);
     });
 });

@@ -27,17 +27,11 @@ import './config';
 import * as _ from 'lodash';
 import {utils} from './utils';
 
-export class Test {
-    foin: any;
-    constructor() {
-        console.log('pow');
-        this.foin = _.merge({}, {a: 1});
-    }
-}
+type JsonData = any;
 
-export class Rule {
-    name: string;
-    weight: number;
+export class ShapeDesc {
+    shape: string;
+    ordered: boolean = false;
 
     x?: number;
     y?: number;
@@ -54,71 +48,89 @@ export class Rule {
     transform: Array<number>;
     hsv: Array<number>;
 
-    constructor (data: any) {
-        this.name = data.name;
-        this.weight = data.weight || 1;
-        
-        this.x = this.getArg(data, 0, 'x');
-        this.y = this.getArg(data, 0, 'y');
+    constructor(data: JsonData) {
+        this.shape = data.shape;
+        this.ordered = data.ordered;
+        let adjustments = data.adjustments || {};
+        this.compileAdjustments(adjustments);
+    }
+
+    compileAdjustments(adjustments: JsonData) {
+        this.x = this.getArg(adjustments, 0, 'x');
+        this.y = this.getArg(adjustments, 0, 'y');
         // this.z = this.getArg(data, 0, 'z');
         this.transform = utils.adjustTransform(utils.identity(), [1, 0, 0, 1, this.x, this.y]);
 
-        this.rotate = this.getArg(data, null, 'r', 'rotate');
+        this.rotate = this.getArg(adjustments, null, 'r', 'rotate');
         if (this.rotate !== null) {
             let cosTheta = Math.cos(-2 * Math.PI * this.rotate / 360);
             let sinTheta = Math.sin(-2 * Math.PI * this.rotate / 360);
             this.transform = utils.adjustTransform(
-                this.transform, 
+                this.transform,
                 [cosTheta, -sinTheta, sinTheta, cosTheta, 0, 0]);
         }
 
-        let s = this.getArg(data, null, 's', 'size');
+        let s = this.getArg(adjustments, null, 's', 'size');
         if (s !== null) {
             if (typeof s === 'number') {
                 this.sx = this.sy = this.sz = s;
+            } else if (s.length == 1) {
+                this.sx = this.sy = this.sz = s[0];
             } else if (s.length == 2) {
                 this.sx = s[0]
                 this.sy = s[1]
-            } else if (s.length == 2) {
-                this.sx = s[0]
-                this.sy = s[1];
             }
             this.transform = utils.adjustTransform(
                 this.transform,
                 [this.sx, 0, 0, this.sy, 0, 0]);
         }
 
-        this.flip = this.getArg(data, null, 'f', 'flip');
-        this.skew = this.getArg(data, null, 'skew');
+        this.flip = this.getArg(adjustments, null, 'f', 'flip');
+        this.skew = this.getArg(adjustments, null, 'skew');
 
         this.hsv = [0, 0, 0];
-        let h = this.getArg(data, [0, 0, 0], 'h', 'hue');
+        let h = this.getArg(adjustments, [0, 0, 0], 'h', 'hue');
         if (typeof h === 'number') {
             this.hsv[0] = h;
-            this.hsv[1] = this.getArg(data, 0, 'sat', 'saturation');
-            this.hsv[2] = this.getArg(data, 0, 'b', 'brightness');
-            this.alpha = this.getArg(data, 1, 'a', 'alpha');
+            this.hsv[1] = this.getArg(adjustments, 0, 'sat', 'saturation');
+            this.hsv[2] = this.getArg(adjustments, 0, 'b', 'brightness');
+            this.alpha = this.getArg(adjustments, 1, 'a', 'alpha');
         } else if (h.length === 3) {
             this.hsv = h.slice(0, 3);
-            this.alpha = this.getArg(data, 1, 'a', 'alpha');
+            this.alpha = this.getArg(adjustments, 1, 'a', 'alpha');
         } else if (h.length === 4) {
             this.hsv = h.slice(0, 3);
             this.alpha = h[3];
         }
 
         this.replacements = [];
-        if (data.replacements) {
-            this.replacements = data.replacements.map(r => new Rule(r));
+        if (adjustments.replacements) {
+            this.replacements = adjustments.replacements.map(r => new Rule(r));
         }
     }
 
-    getArg(data: any, defaultValue: any, ...argNames) : any {
+    getArg(data: JsonData, defaultValue: any, ...argNames): any {
         for (let arg of argNames) {
             if (data[arg] !== undefined) {
                 return data[arg];
             }
         }
         return defaultValue;
+    }
+}
+
+export class Rule {
+    name: string;
+    weight: number;
+    shapes: Array<ShapeDesc> = [];
+
+    constructor(data: JsonData) {
+        this.name = data.name;
+        this.weight = data.weight || 1;
+
+        if (data.shapes) {
+            this.shapes = data.shapes.map(s => new ShapeDesc(s));
+        }
     }
 }
 
