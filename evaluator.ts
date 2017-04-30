@@ -162,7 +162,7 @@ export class Rule {
 export class Grammar {
     startshape: string;
     // TODO background
-    rules: Map<string, Array<Rule>> = new Map<string, Array<Rule>>;
+    rules: Map<string, Array<Rule>> = new Map<string, Array<Rule>>();
 
     constructor (data: JsonData) {
         this.startshape = data.startshape;
