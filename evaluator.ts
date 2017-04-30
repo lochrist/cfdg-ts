@@ -42,7 +42,10 @@ export class ShapeDesc {
     constructor(data: JsonData) {
         this.data = data;
         this.shape = data.shape;
-        this.ordered = data.ordered;
+        if (!this.shape) {
+            throw new Error('Shape with no name');
+        }
+
         this.transform = utils.identity();
         this.hsv = [0, 0, 0];
 
@@ -131,6 +134,7 @@ export class ShapeDesc {
         this.alpha = Math.min(Math.max(this.alpha, -1), 1);
 
         this.replacements = [];
+        // TODO Replacement: need to handle loop and *
         if (adjustments.replacements) {
             this.replacements = adjustments.replacements.map(r => new Rule(r));
         }
@@ -144,6 +148,9 @@ export class Rule {
 
     constructor(data: JsonData) {
         this.name = data.name;
+        if (!this.name) {
+            throw new Error('Rule with no name');
+        }
         this.weight = data.weight || 1;
 
         if (data.shapes) {
@@ -152,19 +159,38 @@ export class Rule {
     }
 }
 
-interface Grammar {
+export class Grammar {
     startshape: string;
-    // background
-    // size : need clip support
-    rules: Map<string, Array<Rule>>;
+    // TODO background
+    rules: Map<string, Array<Rule>> = new Map<string, Array<Rule>>;
+
+    constructor (data: JsonData) {
+        this.startshape = data.startshape;
+        if (!data.startshape) {
+            throw new Error('startshape is needed');
+        }
+
+        if (!data.rules) {
+            throw new Error('no rules');
+        }
+
+        let rules = data.rules.map(r => new Rule(r));
+        for (let r of rules) {
+            if (!this.rules.has(r.name)) {
+                this.rules.set(r.name, new Array<Rule>());
+            }
+            this.rules.get(r.name).push(r);
+        }
+        if (!this.rules.has(this.startshape)) {
+            throw new Error(`startshape: ${this.startshape} is not specified in rules`);
+        }
+    }
 }
 
 export class Evaluator {
-    _grammar: Grammar;
+    grammar: Grammar;
 
     constructor (grammar) {
-        // Compile for each rule the transform and the color adjustement.
-
         // For split evaluation:
             // loop over the rule until not able to create new shape
             // draw each found shapes

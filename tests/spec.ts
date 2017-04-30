@@ -1,8 +1,15 @@
 import '../config';
-import { Evaluator, Rule, ShapeDesc } from '../evaluator';
+import { Evaluator, Rule, ShapeDesc, Grammar } from '../evaluator';
 
 describe('shapes', function () {
-    it('Default shape', function () {
+    it('validation', function () {
+        let shapeData = {
+        }
+
+        expect(() => new ShapeDesc(shapeData)).toThrowError();
+    });
+
+    it('default shape', function () {
         let shapeData = {
             shape: 'SQUARE'
         }
@@ -153,14 +160,19 @@ describe('shapes', function () {
 });
 
 describe('rules', function () {
-    it('Default rule', function () {
+    it('validation', function () {
+        expect(() => new Rule({})).toThrowError();
+    });
+
+
+    it('default rule', function () {
         let r = new Rule({name: 'default'});
         expect(r.name).toEqual('default');
         expect(r.weight).toEqual(1);
         expect(r.shapes).toEqual([]);
     });
-
-    it('Rule', function () {
+    
+    it('custom rule', function () {
         let r = new Rule({ 
             name: 'default', 
             weight: 0.5,
@@ -177,7 +189,39 @@ describe('rules', function () {
     });
 });
 
-it("Create evaluator", function () {
-    let evaluator = new Evaluator({});
-    expect(evaluator).toBeDefined();
+describe('grammars', function () {
+    it ('validation', function () {
+        expect(() => new Grammar({})).toThrowError();
+        expect(() => new Grammar({startshape: 'init'})).toThrowError();
+        expect(() => new Grammar({ startshape: 'init', rules:[] })).toThrowError();
+        expect(() => new Grammar({ startshape: 'init', rules: [
+            {
+                name: 'default',
+            }
+        ] })).toThrowError();
+    });
+
+    it ('default rule', function () {
+        let desc = {
+            startshape: 'init',
+            rules: [
+                {
+                    name: 'init',
+                }
+            ]
+        };
+        let g = new Grammar(desc);
+        expect(g).toEqual(new Grammar(desc));
+        expect(g.startshape).toEqual(desc.startshape);
+        expect(g.rules.size).toEqual(1);
+    });
 });
+
+describe('evaluator', function () {
+    it("default evaluator", function () {
+        let evaluator = new Evaluator({});
+        expect(evaluator).toBeDefined();
+    });
+});
+
+
