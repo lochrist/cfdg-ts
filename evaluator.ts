@@ -84,23 +84,50 @@ export class ShapeDesc {
                 case 'hue':
                     let h = paramValue;
                     if (typeof h === 'number') {
+                        // modulo 360
                         this.hsv[0] = h;
-                        this.hsv[1] = this.getArg(adjustments, 0, 'sat', 'saturation');
-                        this.hsv[2] = this.getArg(adjustments, 0, 'b', 'brightness');
-                        this.alpha = this.getArg(adjustments, 1, 'a', 'alpha');
+                    } else if (h.length === 1) {
+                        this.hsv[0] = h[0];
                     } else if (h.length === 3) {
                         this.hsv = h.slice(0, 3);
-                        this.alpha = this.getArg(adjustments, 1, 'a', 'alpha');
                     } else if (h.length === 4) {
                         this.hsv = h.slice(0, 3);
                         this.alpha = h[3];
                     }
                     break;
+                case 'sat':
+                case 'saturation':
+                    // [-1, 1]
+                    this.hsv[1] = paramValue;
+                    break;
+                case 'b':
+                case 'brightness':
+                    // [-1, 1]
+                    this.hsv[2] = paramValue
+                    break;
+                case 'a':
+                case 'alpha':
+                    // [-1, 1]
+                    this.alpha = paramValue;
+                    break;
+                case 'f':
+                case 'flip':
+                    let c = Math.cos(Math.PI * paramValue / 90);
+                    let scale = Math.sin(Math.PI * paramValue / 90);
+                    this.transform = utils.adjustTransform(this.transform, [c, scale, scale, -c, 0, 0]);
+                    break;
+                case 'skew':
+                    let sx = Math.tan(Math.PI * paramValue[0] / 180);
+                    let sy = Math.tan(Math.PI * paramValue[1] / 180);
+                    this.transform = utils.adjustTransform(this.transform, [1, sy, sx, 1, 0, 0]); 
+                    break;
             }
         });
 
-        // this.flip = this.getArg(adjustments, null, 'f', 'flip');
-        // this.skew = this.getArg(adjustments, null, 'skew');
+        for (let i = 1; i < 3; ++i) {
+            this.hsv[i] = Math.min(Math.max(this.hsv[i], -1), 1);
+        }
+        this.alpha = Math.min(Math.max(this.alpha, -1), 1);
 
         this.replacements = [];
         if (adjustments.replacements) {

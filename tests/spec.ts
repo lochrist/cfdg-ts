@@ -71,6 +71,85 @@ describe('shapes', function () {
 
         expect(sd2.transform).toEqual([10, 0, 0, 20, 0, 0]);
     });
+
+    it('flip', function () {
+        let sd1 = new ShapeDesc({
+            name: 'SQUARE',
+            adjustments: {
+                f: 10
+            }
+        });
+        let expectedResult = [0.9396926207859084, 0.3420201433256687, 0.3420201433256687, -0.9396926207859084, 0, 0];
+        expect(sd1.transform).toEqual(expectedResult);
+
+        let sd2 = new ShapeDesc({
+            name: 'SQUARE',
+            adjustments: {
+                flip: 10
+            }
+        });
+        expect(sd2.transform).toEqual(expectedResult);
+    });
+
+    it('skew', function () {
+        let sd1 = new ShapeDesc({
+            name: 'SQUARE',
+            adjustments: {
+                skew: [10, 5]
+            }
+        });
+        expect(sd1.transform).toEqual([1, 0.08748866352592401, 0.17632698070846498, 1, 0, 0]);
+    });
+
+    it('hsv', function () {
+        let sd = new ShapeDesc({
+            name: 'SQUARE',
+            adjustments: {
+                h: [56],
+                sat: 2
+            }
+        });
+        expect(sd.hsv).toEqual([56, 1, 0]);
+
+        sd = new ShapeDesc({
+            name: 'SQUARE',
+            adjustments: {
+                h: [56, -0.2, 0.3],
+                alpha: 2
+            }
+        });
+        expect(sd.hsv).toEqual([56, -0.2, 0.3]);
+        expect(sd.alpha).toEqual(1);
+
+        sd = new ShapeDesc({
+            name: 'SQUARE',
+            adjustments: {
+                h: [56, -0.2, 0.3, -2]
+            }
+        });
+        expect(sd.hsv).toEqual([56, -0.2, 0.3]);
+        expect(sd.alpha).toEqual(-1);
+
+        sd = new ShapeDesc({
+            name: 'SQUARE',
+            adjustments: {
+                sat: 0.5,
+                b: 0.2
+            }
+        });
+        expect(sd.hsv).toEqual([0, 0.5, 0.2]);
+
+        sd = new ShapeDesc({
+            name: 'SQUARE',
+            adjustments: {
+                saturation: 0.5,
+                brightness: -0.4,
+                a: 1.6
+            }
+        });
+        expect(sd.hsv).toEqual([0, 0.5, -0.4]);
+        expect(sd.alpha).toEqual(1);
+    });
 });
 
 it("Create evaluator", function () {
