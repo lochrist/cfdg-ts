@@ -29,7 +29,7 @@ describe('shapes', function () {
 
     it('rotate', function () {
         let sd1 = new ShapeDesc({
-            name: 'SQUARE',
+            shape: 'SQUARE',
             adjustments: {
                 r: 10
             }
@@ -37,7 +37,7 @@ describe('shapes', function () {
         expect(sd1.transform).toEqual([0.984807753012208, 0.17364817766693033, -0.17364817766693033, 0.984807753012208, 0, 0]);
 
         let sd2 = new ShapeDesc({
-            name: 'SQUARE',
+            shape: 'SQUARE',
             adjustments: {
                 rotate: 10
             }
@@ -47,7 +47,7 @@ describe('shapes', function () {
 
     it('size', function () {
         let sd1 = new ShapeDesc({
-            name: 'SQUARE',
+            shape: 'SQUARE',
             adjustments: {
                 s: [10]
             }
@@ -55,7 +55,7 @@ describe('shapes', function () {
         expect(sd1.transform).toEqual([10, 0, 0, 10, 0, 0]);
 
         sd1 = new ShapeDesc({
-            name: 'SQUARE',
+            shape: 'SQUARE',
             adjustments: {
                 s: 10
             }
@@ -63,7 +63,7 @@ describe('shapes', function () {
         expect(sd1.transform).toEqual([10, 0, 0, 10, 0, 0]);
 
         let sd2 = new ShapeDesc({
-            name: 'SQUARE',
+            shape: 'SQUARE',
             adjustments: {
                 size: [10, 20]
             }
@@ -74,7 +74,7 @@ describe('shapes', function () {
 
     it('flip', function () {
         let sd1 = new ShapeDesc({
-            name: 'SQUARE',
+            shape: 'SQUARE',
             adjustments: {
                 f: 10
             }
@@ -83,7 +83,7 @@ describe('shapes', function () {
         expect(sd1.transform).toEqual(expectedResult);
 
         let sd2 = new ShapeDesc({
-            name: 'SQUARE',
+            shape: 'SQUARE',
             adjustments: {
                 flip: 10
             }
@@ -93,7 +93,7 @@ describe('shapes', function () {
 
     it('skew', function () {
         let sd1 = new ShapeDesc({
-            name: 'SQUARE',
+            shape: 'SQUARE',
             adjustments: {
                 skew: [10, 5]
             }
@@ -103,7 +103,7 @@ describe('shapes', function () {
 
     it('hsv', function () {
         let sd = new ShapeDesc({
-            name: 'SQUARE',
+            shape: 'SQUARE',
             adjustments: {
                 h: [56],
                 sat: 2
@@ -112,7 +112,7 @@ describe('shapes', function () {
         expect(sd.hsv).toEqual([56, 1, 0]);
 
         sd = new ShapeDesc({
-            name: 'SQUARE',
+            shape: 'SQUARE',
             adjustments: {
                 h: [56, -0.2, 0.3],
                 alpha: 2
@@ -122,7 +122,7 @@ describe('shapes', function () {
         expect(sd.alpha).toEqual(1);
 
         sd = new ShapeDesc({
-            name: 'SQUARE',
+            shape: 'SQUARE',
             adjustments: {
                 h: [56, -0.2, 0.3, -2]
             }
@@ -131,7 +131,7 @@ describe('shapes', function () {
         expect(sd.alpha).toEqual(-1);
 
         sd = new ShapeDesc({
-            name: 'SQUARE',
+            shape: 'SQUARE',
             adjustments: {
                 sat: 0.5,
                 b: 0.2
@@ -140,7 +140,7 @@ describe('shapes', function () {
         expect(sd.hsv).toEqual([0, 0.5, 0.2]);
 
         sd = new ShapeDesc({
-            name: 'SQUARE',
+            shape: 'SQUARE',
             adjustments: {
                 saturation: 0.5,
                 brightness: -0.4,
@@ -149,6 +149,31 @@ describe('shapes', function () {
         });
         expect(sd.hsv).toEqual([0, 0.5, -0.4]);
         expect(sd.alpha).toEqual(1);
+    });
+});
+
+describe('rules', function () {
+    it('Default rule', function () {
+        let r = new Rule({name: 'default'});
+        expect(r.name).toEqual('default');
+        expect(r.weight).toEqual(1);
+        expect(r.shapes).toEqual([]);
+    });
+
+    it('Rule', function () {
+        let r = new Rule({ 
+            name: 'default', 
+            weight: 0.5,
+            shapes: [
+                {
+                    shape: 'SQUARE'
+                }
+            ]
+        });
+        
+        expect(r.name).toEqual(r.name);
+        expect(r.weight).toEqual(r.weight);
+        expect(r.shapes).toEqual([new ShapeDesc({shape: 'SQUARE'})]);
     });
 });
 

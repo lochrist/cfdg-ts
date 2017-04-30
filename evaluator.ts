@@ -124,6 +124,7 @@ export class ShapeDesc {
             }
         });
 
+        // s-v and alpha => [-1, 1]
         for (let i = 1; i < 3; ++i) {
             this.hsv[i] = Math.min(Math.max(this.hsv[i], -1), 1);
         }
@@ -133,15 +134,6 @@ export class ShapeDesc {
         if (adjustments.replacements) {
             this.replacements = adjustments.replacements.map(r => new Rule(r));
         }
-    }
-
-    getArg(data: JsonData, defaultValue: any, ...argNames): any {
-        for (let arg of argNames) {
-            if (data[arg] !== undefined) {
-                return data[arg];
-            }
-        }
-        return defaultValue;
     }
 }
 
