@@ -32,76 +32,75 @@ type JsonData = any;
 export class ShapeDesc {
     shape: string;
     ordered: boolean = false;
-
-    x?: number;
-    y?: number;
-    z?: number;
-    sx?: number;
-    sy?: number;
-    sz?: number;
-    rotate?: number;
-    flip?: number;
-    skew?: number;
-    alpha?: number;
-
+    data: JsonData;
+    
     replacements: Array<Rule>;
     transform: Array<number>;
     hsv: Array<number>;
+    alpha: number = 1;
 
     constructor(data: JsonData) {
+        this.data = data;
         this.shape = data.shape;
         this.ordered = data.ordered;
+        this.transform = utils.identity();
+        this.hsv = [0, 0, 0];
+
         let adjustments = data.adjustments || {};
         this.compileAdjustments(adjustments);
     }
 
     compileAdjustments(adjustments: JsonData) {
-        this.x = this.getArg(adjustments, 0, 'x');
-        this.y = this.getArg(adjustments, 0, 'y');
-        // this.z = this.getArg(data, 0, 'z');
-        this.transform = utils.adjustTransform(utils.identity(), [1, 0, 0, 1, this.x, this.y]);
-
-        this.rotate = this.getArg(adjustments, null, 'r', 'rotate');
-        if (this.rotate !== null) {
-            let cosTheta = Math.cos(-2 * Math.PI * this.rotate / 360);
-            let sinTheta = Math.sin(-2 * Math.PI * this.rotate / 360);
-            this.transform = utils.adjustTransform(
-                this.transform,
-                [cosTheta, -sinTheta, sinTheta, cosTheta, 0, 0]);
-        }
-
-        let s = this.getArg(adjustments, null, 's', 'size');
-        if (s !== null) {
-            if (typeof s === 'number') {
-                this.sx = this.sy = this.sz = s;
-            } else if (s.length == 1) {
-                this.sx = this.sy = this.sz = s[0];
-            } else if (s.length == 2) {
-                this.sx = s[0]
-                this.sy = s[1]
+        _.each(adjustments, (paramValue, paramName) => {
+            switch(paramName) {
+                case 'x':
+                    this.transform = utils.adjustTransform(this.transform, [1, 0, 0, 1, paramValue, 0]);
+                    break;
+                case 'y':
+                    this.transform = utils.adjustTransform(this.transform, [1, 0, 0, 1, 0, paramValue]);
+                    break;
+                case 'rotate':
+                case 'r':
+                    let rotate = paramValue
+                    let cosTheta = Math.cos(-2 * Math.PI * rotate / 360);
+                    let sinTheta = Math.sin(-2 * Math.PI * rotate / 360);
+                    this.transform = utils.adjustTransform(
+                        this.transform,
+                        [cosTheta, -sinTheta, sinTheta, cosTheta, 0, 0]);
+                    break;
+                case 's':
+                case 'size':
+                    let s = paramValue;
+                    if (typeof s === 'number') {
+                        s = [s, s];
+                    } else if (s.length == 1) {
+                        s = [s[0], s[0]];
+                    }
+                    this.transform = utils.adjustTransform(
+                        this.transform,
+                        [s[0], 0, 0, s[1], 0, 0]);
+                    break;
+                case 'h':
+                case 'hue':
+                    let h = paramValue;
+                    if (typeof h === 'number') {
+                        this.hsv[0] = h;
+                        this.hsv[1] = this.getArg(adjustments, 0, 'sat', 'saturation');
+                        this.hsv[2] = this.getArg(adjustments, 0, 'b', 'brightness');
+                        this.alpha = this.getArg(adjustments, 1, 'a', 'alpha');
+                    } else if (h.length === 3) {
+                        this.hsv = h.slice(0, 3);
+                        this.alpha = this.getArg(adjustments, 1, 'a', 'alpha');
+                    } else if (h.length === 4) {
+                        this.hsv = h.slice(0, 3);
+                        this.alpha = h[3];
+                    }
+                    break;
             }
-            this.transform = utils.adjustTransform(
-                this.transform,
-                [this.sx, 0, 0, this.sy, 0, 0]);
-        }
+        });
 
-        this.flip = this.getArg(adjustments, null, 'f', 'flip');
-        this.skew = this.getArg(adjustments, null, 'skew');
-
-        this.hsv = [0, 0, 0];
-        let h = this.getArg(adjustments, [0, 0, 0], 'h', 'hue');
-        if (typeof h === 'number') {
-            this.hsv[0] = h;
-            this.hsv[1] = this.getArg(adjustments, 0, 'sat', 'saturation');
-            this.hsv[2] = this.getArg(adjustments, 0, 'b', 'brightness');
-            this.alpha = this.getArg(adjustments, 1, 'a', 'alpha');
-        } else if (h.length === 3) {
-            this.hsv = h.slice(0, 3);
-            this.alpha = this.getArg(adjustments, 1, 'a', 'alpha');
-        } else if (h.length === 4) {
-            this.hsv = h.slice(0, 3);
-            this.alpha = h[3];
-        }
+        // this.flip = this.getArg(adjustments, null, 'f', 'flip');
+        // this.skew = this.getArg(adjustments, null, 'skew');
 
         this.replacements = [];
         if (adjustments.replacements) {
