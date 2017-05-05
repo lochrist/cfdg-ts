@@ -3,6 +3,19 @@ import {Builder} from './builder';
 import { CanvasRenderer } from './canvas-renderer';
 import { Evaluator, Grammar, EvaluationType} from './evaluator';
 
+/**
+startshape init
+
+rule init {
+    square [h 100 sat 0.5 b 0.5]
+    square [h 200 sat 0.7 b 0.7 a 0.5 s 0.5]
+}
+
+rule square {
+    SQUARE [r 45 h 45]
+}
+ */
+
 let midSquareGrammar = {
     startshape: 'init',
     rules: [

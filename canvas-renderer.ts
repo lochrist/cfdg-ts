@@ -9,9 +9,7 @@ export class CanvasRenderer {
     constructor(canvas: HTMLCanvasElement) {
         this.canvas = canvas;
         this.context = canvas.getContext('2d');
-        this.scale = Math.min(this.canvas.width, this.canvas.height);
-
-
+        this.scale = Math.min(this.canvas.width / 2, this.canvas.height / 2);
         this.context.setTransform(1, 0, 0, 1, 0, 0);
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
