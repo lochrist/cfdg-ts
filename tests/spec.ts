@@ -215,6 +215,29 @@ describe('grammars', function () {
         expect(g.startshape.shape).toEqual(desc.startshape);
         expect(g.rules.size).toEqual(1);
     });
+
+    it('start shape', function () {
+        let desc = {
+            startshape: {
+                shape: 'init',
+                adjustments: {
+                    saturation: 0.5,
+                    brightness: -0.4,
+                    a: 0.8
+                },
+            },
+            rules: [
+                {
+                    name: 'init',
+                }
+            ]
+        };
+        let g = new Grammar(desc);
+        expect(g).toEqual(new Grammar(desc));
+        expect(g.startshape.shape).toEqual(desc.startshape.shape);
+        expect(g.startshape.alpha).toEqual(desc.startshape.adjustments.a);
+        expect(g.rules.size).toEqual(1);
+    });
 });
 
 describe('evaluator', function () {

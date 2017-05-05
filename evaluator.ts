@@ -181,7 +181,7 @@ export class Grammar {
             this.rules.get(r.name).push(r);
         }
 
-        this.startshape = _.isString(data.startshape) ? new ShapeDesc({shape: data.startshape}) : new ShapeDesc(data.startshape.shape);
+        this.startshape = _.isString(data.startshape) ? new ShapeDesc({shape: data.startshape}) : new ShapeDesc(data.startshape);
         let startShapeRule = this.rules.get(this.startshape.shape);
         if (!startShapeRule || startShapeRule.length === 0) {
             throw new Error(`startshape: ${this.startshape.shape} is not specified in rules`);
