@@ -1,4 +1,5 @@
 import '../config';
+import { utils } from '../utils';
 import { Evaluator, Rule, ShapeDesc, Grammar } from '../evaluator';
 
 describe('shapes', function () {
@@ -195,6 +196,29 @@ describe('rules', function () {
     });
 });
 
+describe('adjustments', function () {
+    it('color', function () {
+
+        expect(utils.adjustColor([0, 0, 0, 1], [0, 0, 0, 1]))
+            .toEqual([0, 0, 0, 1]);
+        expect(utils.adjustColor([340, 0, 0, 1], [270, 0, 0, 1]))
+            .toEqual([250, 0, 0, 1]);
+        expect(utils.adjustColor([340, 0.75, 0, 1], [270, 0.25, 0, 1]))
+            .toEqual([250, 0.8125, 0, 1]);
+        expect(utils.adjustColor([340, 0, 0.75, 1], [270, 0, 0.25, 1]))
+            .toEqual([250, 0, 0.8125, 1]);
+        expect(utils.adjustColor([340, 0, 0, 0.75], [270, 0, 0, 0.25]))
+            .toEqual([250, 0, 0, 0.8125]);
+
+        expect(utils.adjustColor([340, 0.75, 0, 1], [270, -0.25, 0, 1]))
+            .toEqual([250, 0.5625, 0, 1]);
+        expect(utils.adjustColor([340, 0, 0.75, 1], [270, 0, -0.25, 1]))
+            .toEqual([250, 0, 0.5625, 1]);
+        expect(utils.adjustColor([340, 0, 0, 0.75], [270, 0, 0, -0.25]))
+            .toEqual([250, 0, 0, 0.5625]);
+    });
+});
+
 describe('grammars', function () {
     it ('validation', function () {
         expect(() => new Grammar({})).toThrowError();
@@ -270,5 +294,3 @@ describe('evaluator', function () {
         expect(evaluator).toBeDefined();
     });
 });
-
-

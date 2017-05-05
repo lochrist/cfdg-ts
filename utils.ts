@@ -14,46 +14,28 @@ export namespace utils {
         ];
     };
 
-    export function adjustColor(color: Color, adjustment: Color, target: Color): Color {
+    export function adjustColor(color: Color, adjustment: Color): Color {
         color = color.slice() as Color;
-        let a, t;
 
-        if (a = adjustment[0]) {
-            if (adjustment[4] & 1) {
-                t = target[0];
-                if (a > 0) {
-                    if (t < color[0]) t += 360;
-                    color[0] += (t - color[0]) * a;
-                } else {
-                    if (t > color[0]) t -= 360;
-                    color[0] += (color[0] - t) * a;
-                }
+        // https://github.com/MtnViewJohn/context-free/wiki/Shape-Adjustments
+        // add num to the drawing hue value, modulo 360
+        color[0] += adjustment[0];
+        color[0] %= 360;
+
+        // range [-1,1]. If num<0 then change the drawing saturation num% toward 0. If num>0 then change the drawing saturation num% toward 1.
+        for (let i = 1; i < 4; ++i) {
+            if (adjustment[i] > 0) {
+                color[i] += adjustment[i] * (1 - color[i]);
             } else {
-                color[0] += adjustment[0];
-            }
-            color[0] %= 360;
-            if (color[0] < 0) color[0] += 360;
-        }
-
-        for (let i = 1; i < 4; i++) {
-            if (a = adjustment[i]) {
-                if (adjustment[4] & (1 << i)) {
-                    if (a > 0) {
-                        color[i] += (target[i] - color[i]) * a;
-                    } else {
-                        color[i] += (color[i] - (color[i] < target[i] ? 0 : 1)) * a;
-                    }
-                } else {
-                    if (a > 0) {
-                        color[i] += (1 - color[i]) * a;
-                    } else {
-                        color[i] += color[i] * a;
-                    }
-                }
+                color[i] += adjustment[i] * color[i];
             }
         }
 
         return color;
+    };
+
+    export function defaultColor(): Color {
+        return [0, 0, 0, 1];
     };
 
     export function hsv2rgb(h: number, s: number, v: number, a: number) : Array<number> {

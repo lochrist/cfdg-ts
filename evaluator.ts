@@ -39,6 +39,7 @@ export class ShapeDesc {
     hsv: Hsv;
     alpha: number = 1;
     color: Color;
+    isTerminal: boolean
 
     constructor(data: JsonData) {
         this.data = data;
@@ -52,6 +53,7 @@ export class ShapeDesc {
 
         let adjustments = data.adjustments || {};
         this.compileAdjustments(adjustments);
+        this.isTerminal = this.shape === 'SQUARE' || this.shape === 'CIRCLE' || this.shape === 'TRIANGLE';
     }
 
     compileAdjustments(adjustments: JsonData) {
@@ -196,13 +198,21 @@ export class Shape {
 
 }
 
-interface RuleEvaluator {
-    (transform: Transform, color: Color) : Shape;
+class EvalDesc {
+    transform: Transform;
+    color: Color;
+    shapeDesc: ShapeDesc;
+    constructor(transform: Transform, color: Color, shapeDesc: ShapeDesc) {
+        this.transform = transform;
+        this.color = color;
+        this.shapeDesc = shapeDesc;
+    }
 }
 
 export class Evaluator {
     grammar: Grammar;
-    evaluationStack: RuleEvaluator[];
+    evaluationStack: EvalDesc[];
+    shapes: Shape[];
 
     constructor (grammar: Grammar) {
         this.grammar = grammar;
@@ -211,7 +221,21 @@ export class Evaluator {
             // draw each found shapes
     }
 
-    evaluate () {
+    evaluate () : void {
+        let initialTransform = utils.identity();
+        let initialColor = utils.defaultColor();
+        this.evaluationStack.push(new EvalDesc(initialTransform, initialColor, this.grammar.startshape));
+        this._evaluateTick();
+    }
 
+    _evaluateTick() : void {
+        let desc = this.evaluationStack.shift();
+        let transform = utils.adjustTransform(desc.transform, desc.shapeDesc.transform);
+        let color = utils.adjustColor(desc.color, desc.shapeDesc.color);
+        if (desc.shapeDesc.isTerminal) {
+
+        } else {
+
+        }
     }
 }
