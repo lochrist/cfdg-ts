@@ -1,9 +1,9 @@
 export namespace utils {
-    export function identity () : Array<number> {
+    export function identity(): Transform {
         return [1, 0, 0, 1, 0, 0];
     };
 
-    export function adjustTransform(transform: Array<number>, adjustment: Array<number>): Array<number> {
+    export function adjustTransform(transform: Transform, adjustment: Transform): Transform {
         return [
             transform[0] * adjustment[0] + transform[2] * adjustment[1],
             transform[1] * adjustment[0] + transform[3] * adjustment[1],
@@ -14,8 +14,8 @@ export namespace utils {
         ];
     };
 
-    export function adjustColor(color: Array<number>, adjustment: Array<number>, target: Array<number>) : Array<number> {
-        color = color.slice();
+    export function adjustColor(color: Color, adjustment: Color, target: Color): Color {
+        color = color.slice() as Color;
         let a, t;
 
         if (a = adjustment[0]) {

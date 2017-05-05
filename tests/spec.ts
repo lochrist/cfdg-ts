@@ -18,6 +18,7 @@ describe('shapes', function () {
         expect(sd.shape).toEqual(sd.shape);
         expect(sd.transform).toEqual([1, 0, 0, 1, 0, 0]);
         expect(sd.hsv).toEqual([0, 0, 0]);
+        expect(sd.color).toEqual([0, 0, 0, 1]);
         expect(sd.alpha).toEqual(1);
     });
 
@@ -117,6 +118,7 @@ describe('shapes', function () {
             }
         });
         expect(sd.hsv).toEqual([56, 1, 0]);
+        expect(sd.color).toEqual([56, 1, 0, 1]);
 
         sd = new ShapeDesc({
             shape: 'SQUARE',
@@ -127,6 +129,7 @@ describe('shapes', function () {
         });
         expect(sd.hsv).toEqual([56, -0.2, 0.3]);
         expect(sd.alpha).toEqual(1);
+        expect(sd.color).toEqual([56, -0.2, 0.3, 1]);
 
         sd = new ShapeDesc({
             shape: 'SQUARE',
@@ -136,6 +139,7 @@ describe('shapes', function () {
         });
         expect(sd.hsv).toEqual([56, -0.2, 0.3]);
         expect(sd.alpha).toEqual(-1);
+        expect(sd.color).toEqual([56, -0.2, 0.3, -1]);
 
         sd = new ShapeDesc({
             shape: 'SQUARE',
@@ -145,6 +149,7 @@ describe('shapes', function () {
             }
         });
         expect(sd.hsv).toEqual([0, 0.5, 0.2]);
+        expect(sd.color).toEqual([0, 0.5, 0.2, 1]);
 
         sd = new ShapeDesc({
             shape: 'SQUARE',
@@ -156,6 +161,7 @@ describe('shapes', function () {
         });
         expect(sd.hsv).toEqual([0, 0.5, -0.4]);
         expect(sd.alpha).toEqual(1);
+        expect(sd.color).toEqual([0, 0.5, -0.4, 1]);
     });
 });
 
@@ -240,9 +246,27 @@ describe('grammars', function () {
     });
 });
 
+let midSquareGrammar = {
+    startshape: 'init',
+    rules: [
+        {
+            name: 'init',
+            shapes: [
+                {
+                    shape: 'SQUARE',
+                    adjustments: {
+                        size: [0.5, 0.5]
+                    }
+                }
+            ]
+        }
+    ]
+};
+
 describe('evaluator', function () {
     it("default evaluator", function () {
-        let evaluator = new Evaluator({});
+        let grammar = new Grammar(midSquareGrammar);
+        let evaluator = new Evaluator(grammar);
         expect(evaluator).toBeDefined();
     });
 });

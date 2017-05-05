@@ -35,9 +35,10 @@ export class ShapeDesc {
     data: JsonData;
     
     replacements: Array<Rule>;
-    transform: Array<number>;
-    hsv: Array<number>;
+    transform: Transform;
+    hsv: Hsv;
     alpha: number = 1;
+    color: Color;
 
     constructor(data: JsonData) {
         this.data = data;
@@ -133,6 +134,8 @@ export class ShapeDesc {
         }
         this.alpha = Math.min(Math.max(this.alpha, -1), 1);
 
+        this.color = [this.hsv[0], this.hsv[1], this.hsv[2], this.alpha];
+
         this.replacements = [];
         // TODO Replacement: need to handle loop and *
         if (adjustments.replacements) {
@@ -189,11 +192,21 @@ export class Grammar {
     }
 }
 
+export class Shape {
+
+}
+
+interface RuleEvaluator {
+    (transform: Transform, color: Color) : Shape;
+}
+
 export class Evaluator {
     grammar: Grammar;
+    evaluationStack: RuleEvaluator[];
 
-    constructor (grammar) {
-        // For split evaluation:
+    constructor (grammar: Grammar) {
+        this.grammar = grammar;
+        // TODO: For split evaluation:
             // loop over the rule until not able to create new shape
             // draw each found shapes
     }
