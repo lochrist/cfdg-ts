@@ -160,12 +160,11 @@ export class Rule {
 }
 
 export class Grammar {
-    startshape: string
+    startshape: ShapeDesc;
     // TODO background
     rules: Map<string, Array<Rule>> = new Map<string, Array<Rule>>()
 
     constructor (data: JsonData) {
-        this.startshape = data.startshape
         if (!data.startshape) {
             throw new Error('startshape is needed');
         }
@@ -181,8 +180,11 @@ export class Grammar {
             }
             this.rules.get(r.name).push(r);
         }
-        if (!this.rules.has(this.startshape)) {
-            throw new Error(`startshape: ${this.startshape} is not specified in rules`);
+
+        this.startshape = _.isString(data.startshape) ? new ShapeDesc({shape: data.startshape}) : new ShapeDesc(data.startshape.shape);
+        let startShapeRule = this.rules.get(this.startshape.shape);
+        if (!startShapeRule || startShapeRule.length === 0) {
+            throw new Error(`startshape: ${this.startshape.shape} is not specified in rules`);
         }
     }
 }

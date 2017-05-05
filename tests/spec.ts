@@ -212,7 +212,7 @@ describe('grammars', function () {
         };
         let g = new Grammar(desc);
         expect(g).toEqual(new Grammar(desc));
-        expect(g.startshape).toEqual(desc.startshape);
+        expect(g.startshape.shape).toEqual(desc.startshape);
         expect(g.rules.size).toEqual(1);
     });
 });
