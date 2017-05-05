@@ -407,7 +407,6 @@ let midSquareGrammar = {
     ]
 };
 
-
 describe('evaluator', function () {
     it('default evaluator', function () {
         let grammar = new Grammar(midSquareGrammar);
@@ -430,6 +429,5 @@ describe('evaluator', function () {
             color: [145, 0.5, 0.5, 1],
             transform: [st0, st0, -st0, st0, 0, 0]
         }, true)).toEqual(true);
-        
     });
 });

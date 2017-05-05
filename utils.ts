@@ -1,5 +1,16 @@
 import * as _ from 'lodash';
 
+export class Shape {
+    shape: string;
+    transform: Transform;
+    color: Color;
+    constructor(shape: string, transform: Transform, color: Color) {
+        this.shape = shape;
+        this.transform = transform;
+        this.color = color;
+    }
+}
+
 export namespace utils {
     export function identity(): Transform {
         return [1, 0, 0, 1, 0, 0];
@@ -40,7 +51,7 @@ export namespace utils {
         return [0, 0, 0, 1];
     };
 
-    export function hsv2rgb(h: number, s: number, v: number, a: number) : Array<number> {
+    export function hsv2rgb([h, s, v, a]: Color) : Color {
         let r, g, b;
         if (s == 0) {
             r = g = b = Math.round(v * 0xff);
@@ -131,7 +142,7 @@ export namespace utils {
                 }
             }
             return true;
-        } else if (_.isObjectLike(a) && _.isObjectLike(b)) {
+        } else  if (_.isObjectLike(a) && _.isObjectLike(b)) {
             let keysA = new Set(Object.keys(a));
             let keysB = new Set(Object.keys(b));
             let diffAB = setDifference(keysA, keysB);

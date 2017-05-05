@@ -25,7 +25,7 @@
 
 import './config';
 import * as _ from 'lodash';
-import {utils} from './utils';
+import {utils, Shape} from './utils';
 
 type JsonData = any;
 
@@ -212,18 +212,7 @@ export class Grammar {
     }
 }
 
-export class Shape {
-    shape: string;
-    transform: Transform;
-    color: Color;
-    constructor(shape: string, transform: Transform, color: Color) {
-        this.shape = shape;
-        this.transform = transform;
-        this.color = color;
-    }
-}
-
-class EvalDesc {
+export class EvalDesc {
     transform: Transform;
     color: Color;
     shapeDesc: ShapeDesc;
@@ -276,6 +265,8 @@ export class Evaluator {
         let desc = this.evaluationStack.shift();
         let transform = utils.adjustTransform(desc.transform, desc.shapeDesc.transform);
         let color = utils.adjustColor(desc.color, desc.shapeDesc.color);
+
+        // TODO check shape transform size to see if we stop recursion.
 
         let shape;
         if (desc.shapeDesc.isTerminal) {
