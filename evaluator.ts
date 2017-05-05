@@ -160,12 +160,12 @@ export class Rule {
 }
 
 export class Grammar {
-    startshape: string;
+    startshape: string
     // TODO background
-    rules: Map<string, Array<Rule>> = new Map<string, Array<Rule>>();
+    rules: Map<string, Array<Rule>> = new Map<string, Array<Rule>>()
 
     constructor (data: JsonData) {
-        this.startshape = data.startshape;
+        this.startshape = data.startshape
         if (!data.startshape) {
             throw new Error('startshape is needed');
         }

@@ -3,7 +3,7 @@
     "target": "es6",
     "module": "amd",
     "sourceMap": true,
-    "watch": true,
+    "watch": false,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "removeComments": false,
@@ -12,11 +12,9 @@
   },
 
   "types": [
-    "node_modules/es6-collections",
-    "node_modules/es6-promises",
-    "node_modules/jasmine",
-    "node_modules/lodash",
-    "node_modules/definitely-typed-requirejs"
+    "jasmine",
+    "lodash",
+    "requirejs"
   ],
 
   "exclude": [
