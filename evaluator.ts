@@ -31,10 +31,7 @@ type JsonData = any;
 
 export class ShapeDesc {
     shape: string;
-    ordered: boolean = false;
     data: JsonData;
-    
-    replacements: Array<Rule>;
     transform: Transform;
     hsv: Hsv;
     alpha: number = 1;
@@ -137,12 +134,6 @@ export class ShapeDesc {
         this.alpha = Math.min(Math.max(this.alpha, -1), 1);
 
         this.color = [this.hsv[0], this.hsv[1], this.hsv[2], this.alpha];
-
-        this.replacements = [];
-        // TODO Replacement: need to handle loop and *
-        if (adjustments.replacements) {
-            this.replacements = adjustments.replacements.map(r => new Rule(r));
-        }
     }
 }
 
@@ -150,6 +141,7 @@ export class Rule {
     name: string;
     weight: number;
     shapes: Array<ShapeDesc> = [];
+    probability: number = 0;
 
     constructor(data: JsonData) {
         this.name = data.name;
@@ -167,7 +159,7 @@ export class Rule {
 export class Grammar {
     startshape: ShapeDesc;
     // TODO background
-    rules: Map<string, Array<Rule>> = new Map<string, Array<Rule>>()
+    ruleGroups: Map<string, Array<Rule>> = new Map<string, Array<Rule>>()
 
     constructor (data: JsonData) {
         if (!data.startshape) {
@@ -180,22 +172,55 @@ export class Grammar {
 
         let rules = data.rules.map(r => new Rule(r));
         for (let r of rules) {
-            if (!this.rules.has(r.name)) {
-                this.rules.set(r.name, new Array<Rule>());
+            if (!this.ruleGroups.has(r.name)) {
+                this.ruleGroups.set(r.name, new Array<Rule>());
             }
-            this.rules.get(r.name).push(r);
+            this.ruleGroups.get(r.name).push(r);
         }
 
         this.startshape = _.isString(data.startshape) ? new ShapeDesc({shape: data.startshape}) : new ShapeDesc(data.startshape);
-        let startShapeRule = this.rules.get(this.startshape.shape);
+        let startShapeRule = this.ruleGroups.get(this.startshape.shape);
         if (!startShapeRule || startShapeRule.length === 0) {
-            throw new Error(`startshape: ${this.startshape.shape} is not specified in rules`);
+            throw new Error('startshape: ' + this.startshape.shape + ' is not specified in rules');
         }
+
+        for (let rules of this.ruleGroups.values()) {
+            let totalWeight = rules.reduce((t, r) => r.weight + t, 0);
+            for (let r of rules) {
+                r.probability = r.weight / totalWeight;
+            }
+        }
+    }
+
+    getRule (ruleName: string, probability?: number) : Rule {
+        let rg = this.ruleGroups.get(ruleName);
+        if (rg.length === 1) {
+            return rg[0];
+        }
+
+        let probabilityTotal = 0;
+        probability = probability === undefined ? Math.random() : probability;
+        for (let r of rg) {
+            probabilityTotal += r.probability;
+            if (probability < probabilityTotal) {
+                return r;
+            }
+        }
+
+        // Should not be here...
+        return rg[rg.length - 1];
     }
 }
 
 export class Shape {
-
+    shape: string;
+    transform: Transform;
+    color: Color;
+    constructor(shape: string, transform: Transform, color: Color) {
+        this.shape = shape;
+        this.transform = transform;
+        this.color = color;
+    }
 }
 
 class EvalDesc {
@@ -209,10 +234,17 @@ class EvalDesc {
     }
 }
 
+export enum EvaluationType {
+    RulesSync,
+    RulesASync,
+    RuleAndShapeSync,
+    RuleAndShapeASync
+}
+
 export class Evaluator {
     grammar: Grammar;
-    evaluationStack: EvalDesc[];
-    shapes: Shape[];
+    evaluationStack: EvalDesc[] = [];
+    shapes: Shape[] = [];
 
     constructor (grammar: Grammar) {
         this.grammar = grammar;
@@ -221,21 +253,40 @@ export class Evaluator {
             // draw each found shapes
     }
 
-    evaluate () : void {
+    evaluate(evalType: EvaluationType) : void {
         let initialTransform = utils.identity();
         let initialColor = utils.defaultColor();
         this.evaluationStack.push(new EvalDesc(initialTransform, initialColor, this.grammar.startshape));
-        this._evaluateTick();
+
+        this._evalRulesSync();
     }
 
-    _evaluateTick() : void {
+    _evalRulesSync () : Shape[] {
+        while (this.evaluationStack.length) {
+            this._evaluateTick();
+        }
+        return this.shapes;
+    }
+
+    _evaluateTick(): Shape {
+        if (this.evaluationStack.length === 0) {
+            throw new Error('Evaluation is empty');
+        }
+
         let desc = this.evaluationStack.shift();
         let transform = utils.adjustTransform(desc.transform, desc.shapeDesc.transform);
         let color = utils.adjustColor(desc.color, desc.shapeDesc.color);
+
+        let shape;
         if (desc.shapeDesc.isTerminal) {
+            let shape = new Shape(desc.shapeDesc.shape, transform, color);
+            this.shapes.push(shape);
+            return shape;
+        }
 
-        } else {
-
+        let rule = this.grammar.getRule(desc.shapeDesc.shape);
+        for (let sd of rule.shapes) {
+            this.evaluationStack.push(new EvalDesc(transform, color, sd));
         }
     }
 }

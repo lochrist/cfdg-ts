@@ -1,6 +1,33 @@
 import '../config';
 import { utils } from '../utils';
-import { Evaluator, Rule, ShapeDesc, Grammar } from '../evaluator';
+import * as _ from 'lodash';
+import { Evaluator, Rule, ShapeDesc, Grammar, EvaluationType } from '../evaluator';
+
+describe('isEqual of doom', function () {
+    it ('same value', function () {
+        expect(utils.isEqual(1, 1, true)).toEqual(true);
+        expect(utils.isEqual('ping', 'ping', true)).toEqual(true);
+    });
+
+    it('diff type', function () {
+        expect(utils.isEqual(1, 'ping', false)).toEqual(false);
+    });
+
+    it('numbers', function () {
+        expect(utils.isEqual(1.0000001, 1.00000002, true)).toEqual(true);
+    });
+
+    it('arrays', function () {
+        expect(utils.isEqual([1, 2], [1], false)).toEqual(false);
+        expect(utils.isEqual([1, 2], [3, 4], false)).toEqual(false);
+    });
+
+    it('objects', function () {
+        expect(utils.isEqual({a: 1}, {}, false)).toEqual(false);
+        expect(utils.isEqual({}, {b:1}, false)).toEqual(false);
+        expect(utils.isEqual({a: 1, b: { c: 34}}, { a: 1, b: {c: 34} }, true)).toEqual(true);
+    });
+});
 
 describe('shapes', function () {
     it('validation', function () {
@@ -243,7 +270,7 @@ describe('grammars', function () {
         let g = new Grammar(desc);
         expect(g).toEqual(new Grammar(desc));
         expect(g.startshape.shape).toEqual(desc.startshape);
-        expect(g.rules.size).toEqual(1);
+        expect(g.ruleGroups.size).toEqual(1);
     });
 
     it('start shape', function () {
@@ -266,8 +293,82 @@ describe('grammars', function () {
         expect(g).toEqual(new Grammar(desc));
         expect(g.startshape.shape).toEqual(desc.startshape.shape);
         expect(g.startshape.alpha).toEqual(desc.startshape.adjustments.a);
-        expect(g.rules.size).toEqual(1);
+        expect(g.ruleGroups.size).toEqual(1);
     });
+
+    it('weights 1', function () {
+        let desc = {
+            startshape: 'init',
+            rules: [
+                {
+                    name: 'init',
+                },
+                {
+                    name: 'init',
+                }
+            ]
+        };
+        let g = new Grammar(desc);
+        expect(g.ruleGroups.size).toEqual(1);
+        expect(g.ruleGroups.get('init').length).toEqual(2);
+        expect(g.ruleGroups.get('init')[0].probability).toEqual(0.5);
+        expect(g.ruleGroups.get('init')[1].probability).toEqual(0.5);
+    });
+
+    it('weights 2', function () {
+        let desc = {
+            startshape: 'init',
+            rules: [
+                {
+                    name: 'init',
+                    weight: 2
+                },
+                {
+                    name: 'init',
+                    weight: 8
+                }
+            ]
+        };
+        let g = new Grammar(desc);
+        expect(g.ruleGroups.size).toEqual(1);
+        expect(g.ruleGroups.get('init').length).toEqual(2);
+        expect(g.ruleGroups.get('init')[0].probability).toEqual(0.2);
+        expect(g.ruleGroups.get('init')[1].probability).toEqual(0.8);
+    });
+
+    it('weights 3', function () {
+        let desc = {
+            startshape: 'init',
+            rules: [
+                {
+                    name: 'init',
+                    weight: 2
+                },
+                {
+                    name: 'init',
+                    weight: 8
+                },
+                {
+                    name: 'init',
+                    weight: 10
+                }
+            ]
+        };
+        let g = new Grammar(desc);
+        expect(g.ruleGroups.size).toEqual(1);
+        expect(g.ruleGroups.get('init').length).toEqual(3);
+        expect(g.ruleGroups.get('init')[0].probability).toEqual(0.1);
+        expect(g.ruleGroups.get('init')[1].probability).toEqual(0.4);
+        expect(g.ruleGroups.get('init')[2].probability).toEqual(0.5);
+
+        expect(g.getRule('init', 0.0)).toBe(g.ruleGroups.get('init')[0]);
+        expect(g.getRule('init', 0.1)).toBe(g.ruleGroups.get('init')[1]);
+        expect(g.getRule('init', 0.3)).toBe(g.ruleGroups.get('init')[1]);
+        expect(g.getRule('init', 0.5)).toBe(g.ruleGroups.get('init')[2]);
+        expect(g.getRule('init', 1)).toBe(g.ruleGroups.get('init')[2]);
+    });
+
+    
 });
 
 let midSquareGrammar = {
@@ -277,9 +378,28 @@ let midSquareGrammar = {
             name: 'init',
             shapes: [
                 {
+                    shape: 'square',
+                    adjustments: {
+                        h: [100, 0.5, 0.5]
+                    }
+                },
+                {
+                    shape: 'square',
+                    adjustments: {
+                        h: [200, 0.7, 0.7, 0.5],
+                        size: 0.5
+                    }
+                }
+            ]
+        },
+        {
+            name: 'square',
+            shapes: [
+                {
                     shape: 'SQUARE',
                     adjustments: {
-                        size: [0.5, 0.5]
+                        rotate: 45,
+                        h: 45
                     }
                 }
             ]
@@ -287,10 +407,29 @@ let midSquareGrammar = {
     ]
 };
 
+
 describe('evaluator', function () {
-    it("default evaluator", function () {
+    it('default evaluator', function () {
         let grammar = new Grammar(midSquareGrammar);
         let evaluator = new Evaluator(grammar);
         expect(evaluator).toBeDefined();
+        expect(evaluator.evaluationStack).toEqual([]);
+        expect(evaluator.shapes).toEqual([]);
+    });
+
+    it('evaluate local transform and local color', function () {
+        let grammar = new Grammar(midSquareGrammar);
+        let evaluator = new Evaluator(grammar);
+        evaluator.evaluate(EvaluationType.RulesSync);
+        expect(evaluator.shapes.length).toEqual(2);
+
+        let st0 = 0.7071067811865476;
+        
+        expect(utils.isEqual(evaluator.shapes[0], {
+            shape: 'SQUARE',
+            color: [145, 0.5, 0.5, 1],
+            transform: [st0, st0, -st0, st0, 0, 0]
+        }, true)).toEqual(true);
+        
     });
 });

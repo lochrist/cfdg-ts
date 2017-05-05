@@ -1,3 +1,5 @@
+import * as _ from 'lodash';
+
 export namespace utils {
     export function identity(): Transform {
         return [1, 0, 0, 1, 0, 0];
@@ -80,5 +82,85 @@ export namespace utils {
             }
         }
         return [r, g, b, a];
+    }
+
+    export function nearlyEqual(a: number, b: number, epsilon: number = 0.000001) : boolean {
+        return Math.abs(a - b) < epsilon;
+    }
+
+    export function setDifference (setA: Set<any>, setB: Set<any>) {
+        let difference = new Set(setA);
+        for (var elem of setB) {
+            difference.delete(elem);
+        }
+        return difference;
+    }
+
+    export function isEqual(a: any, b: any, logDifference: boolean, path: string = '') {
+        function at () {
+            return path ? ' at: ' + path : '';
+        }
+        if (a === b) {
+            return true;
+        }
+
+        if (typeof a !== typeof b) {
+            if (logDifference) {
+                console.error('Different types' + at());
+            }
+            return false;
+        }
+
+        if (_.isNumber(a) && _.isNumber(b)) {
+            let result = nearlyEqual(a, b);
+            if (!result && logDifference) {
+                console.error('Different number ' + a + ' !== ' + b + at());
+            }
+            return result;
+        } else if (_.isArray(a) &&_.isArray(b)) {
+            if (a.length !== b.length) {
+                if (logDifference) {
+                    console.error('Different array sizes: ' + a.length + ' !== ' + b.length +  at());
+                }
+                return false;
+            }
+
+            for (let i = 0; i < a.length; ++i) {
+                if (!isEqual(a[i], b[i], logDifference, path + '[' + i + ']')) {
+                    return false;
+                }
+            }
+            return true;
+        } else if (_.isObjectLike(a) && _.isObjectLike(b)) {
+            let keysA = new Set(Object.keys(a));
+            let keysB = new Set(Object.keys(b));
+            let diffAB = setDifference(keysA, keysB);
+            if (diffAB.size > 0)  {
+                if (logDifference) {
+                    console.error('Missing keys [' + Array.from(diffAB).join(', ') + ']' + at());
+                }
+                return false;
+            }
+            let diffBA = setDifference(keysB, keysA);
+            if (diffBA.size > 0) {
+                if (logDifference) {
+                    console.error('Missing keys: [' + Array.from(diffBA).join(', ') + ']' + at());
+                }
+                return false;
+            }
+
+            for (let key of keysA) {
+                if (!isEqual(a[key], b[key], logDifference, path + '.' + key)) {
+                    return false;
+                }
+            }
+            return true;
+        } else {
+            let result = _.isEqual(a, b);
+            if (!result && logDifference) {
+                console.error('Different value ' + a + ' !== ' + b + at());
+            }
+            return result;
+        }
     }
 }
