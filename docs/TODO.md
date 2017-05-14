@@ -4,9 +4,13 @@
 - keep first pass really simple:
     - loop
     - rule with recursion
-    - no target, no transform
+    - no target color, no transform
     - what to do with functions (sin, cos, ...) -> nothing for now.
 - app with some examples (selector)
+
+### Parser
+- Jison
+- antlr: https://github.com/antlr/antlr4/blob/master/doc/index.md
 
 ### Tasks
 - stop recursion on shape too small
