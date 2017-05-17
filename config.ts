@@ -3,6 +3,7 @@ require.config({
 
     paths: {
         'lodash': '../lib/lodash.min',
+        'cfdg-parser': '../lib/cfdg-parser'
     },
 
     shim: {

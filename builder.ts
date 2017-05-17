@@ -1,4 +1,4 @@
-import './lib/cfdg-parser.js';
+import 'cfdg-parser';
 
 declare var CFDG: any;
 

@@ -1,5 +1,6 @@
 import '../config';
 import { utils } from '../utils';
+import { Builder, parseGrammar } from '../builder';
 import * as _ from 'lodash';
 import { Evaluator, Rule, ShapeDesc, Grammar, EvaluationType } from '../evaluator';
 
@@ -406,6 +407,31 @@ let midSquareGrammar = {
         }
     ]
 };
+
+let midSquareGrammarStr = `
+startshape init
+
+rule init {
+    square [h 100 sat 0.5 b 0.5]
+    square [h 200 sat 0.7 b 0.7 a 0.5 s 0.5]
+}
+
+rule square {
+    SQUARE [r 45 h 45]
+}`;
+
+describe('builder', function () {
+    describe('parser', function () {
+        it('validate', function () {
+            expect(_.isFunction(parseGrammar)).toEqual(true);
+        });
+
+        it('parse mid square grammar', function () {
+            let grammar = parseGrammar(midSquareGrammarStr);
+            expect(grammar).toEqual(midSquareGrammar);
+        });
+    });
+});
 
 describe('evaluator', function () {
     it('default evaluator', function () {
