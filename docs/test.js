@@ -38,7 +38,7 @@ let p = new Program({background: 'red'})
     ])
     .rule('c', 0.3, [
         circle()
-    ]),
+    ])
     .rule('c', 0.2, [
         draw('c', {rotate: -10, s: 0.1})
     ]);

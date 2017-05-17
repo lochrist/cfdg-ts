@@ -27,8 +27,6 @@ import './config';
 import * as _ from 'lodash';
 import {utils, Shape} from './utils';
 
-type JsonData = any;
-
 export class ShapeDesc {
     shape: string;
     data: JsonData;
