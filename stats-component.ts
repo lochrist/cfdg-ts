@@ -1,4 +1,5 @@
 import 'mithril';
+import _ = require('lodash');
 import {EvaluationStats} from './evaluator';
 
 let m = (window as any).m;
@@ -35,9 +36,14 @@ export class Stats {
             return this._statLine(entry[0], entry[1].count);
         }));
 
+        let shapes: any[] = _.map(stats.shapeStats(), (count, shapeName) => {
+            return this._statLine(shapeName, count);
+        });
+
         return m('div', {className: 'stat-report'}, [
             this._statLine('Time', stats.evaluationTime),
             this._statLine('Nb Shapes', stats.shapes.length),
+            m('div', {}, shapes),
             this._statLine('Nb Rules', stats.totalRules()),
             m('div', {}, rules)
         ]);

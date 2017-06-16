@@ -263,6 +263,22 @@ export class EvaluationStats {
         this.rules.forEach(r => nbRules = nbRules + r.count);
         return nbRules;
     }
+
+    shapeStats () {
+        let shapes = {
+            SQUARE: 0,
+            CIRCLE: 0,
+            TRIANGLE: 0,
+        };
+
+        for (let s of this.shapes) {
+            if (shapes[s.shape] !== undefined) {
+                shapes[s.shape]++;
+            }
+        }
+
+        return shapes;
+    }
 }
 
 export class Evaluator {
