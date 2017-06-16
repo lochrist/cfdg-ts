@@ -3,6 +3,7 @@ require.config({
 
     paths: {
         'lodash': '../lib/lodash.min',
+        'mithril': '../lib/mithril',
         'cfdg-parser': '../lib/cfdg-parser'
     },
 

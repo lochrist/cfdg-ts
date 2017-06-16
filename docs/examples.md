@@ -10,7 +10,7 @@
 // Tree
 startshape SCALE
 
-rule SCALE{
+rule SCALE {
 	FOREST{ s .03 y -1 x .5 }
 }
 

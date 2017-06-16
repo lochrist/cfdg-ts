@@ -228,13 +228,52 @@ export enum EvaluationType {
     RuleAndShapeASync
 }
 
+export class RuleStat {
+    count: number = 0;
+}
+
+export class EvaluationStats {
+    rules: Map<string, RuleStat> = new Map<string, RuleStat>()
+    shapes: Shape[] = [];
+    evaluationTime: number;
+    _startEvaluation: number;
+    renderTime: number;
+    culledShapeCount: number = 0;
+
+    startEvaluation () {
+        this._startEvaluation = Date.now();
+    }
+
+    endEvaluation(shapes: Shape[]) {
+        this.evaluationTime = Date.now() - this._startEvaluation;
+        this.shapes = shapes;
+    }
+
+    evalRule (rule: Rule) {
+        let ruleName = rule.name + '_' + rule.probability;
+        if (!this.rules.has(ruleName)) {
+            this.rules.set(ruleName, new RuleStat());
+        }
+        let ruleStat = this.rules.get(ruleName);
+        ruleStat.count++;
+    }
+
+    totalRules () {
+        let nbRules = 0;
+        this.rules.forEach(r => nbRules = nbRules + r.count);
+        return nbRules;
+    }
+}
+
 export class Evaluator {
     grammar: Grammar;
     evaluationStack: EvalDesc[] = [];
     shapes: Shape[] = [];
+    stats: EvaluationStats;
 
     constructor (grammar: Grammar) {
         this.grammar = grammar;
+        this.stats = new EvaluationStats();
         // TODO: For split evaluation:
             // loop over the rule until not able to create new shape
             // draw each found shapes
@@ -249,9 +288,11 @@ export class Evaluator {
     }
 
     _evalRulesSync () : Shape[] {
+        this.stats.startEvaluation();
         while (this.evaluationStack.length) {
             this._evaluateTick();
         }
+        this.stats.endEvaluation(this.shapes);
         return this.shapes;
     }
 
@@ -274,6 +315,7 @@ export class Evaluator {
         }
 
         let rule = this.grammar.getRule(desc.shapeDesc.shape);
+        this.stats.evalRule(rule);
         for (let sd of rule.shapes) {
             this.evaluationStack.push(new EvalDesc(transform, color, sd));
         }

@@ -2,6 +2,11 @@ import './config';
 import {Builder, parseGrammar} from './builder';
 import { CanvasRenderer } from './canvas-renderer';
 import { Evaluator, Grammar, EvaluationType} from './evaluator';
+import { Stats } from './stats-component';
+
+import 'mithril';
+
+let m = (window as any).m;
 
 /**
 startshape init
@@ -64,8 +69,6 @@ rule square {
     SQUARE [r 45 h 45]
 }`;
 
-let a = parseGrammar(grammarStr);
-
 let grammar = new Grammar(midSquareGrammar)
 let evaluator = new Evaluator(grammar);
 
@@ -74,3 +77,10 @@ evaluator.evaluate(EvaluationType.RulesSync);
 let canvas = document.getElementById('CFDG') as HTMLCanvasElement;
 let renderer = new CanvasRenderer(canvas);
 renderer.render(evaluator.shapes);
+
+let anchor = document.querySelector('#mithril-root');
+m.mount(anchor, { 
+    view: function () { 
+        return m(Stats, { stats: evaluator.stats }) 
+    } 
+});
