@@ -1,4 +1,60 @@
-export let abcdShape = `
+export let midSquareGrammarStr = `
+startshape init
+
+rule init {
+    square [h 100 sat 0.5 b 0.5]
+    square [h 200 sat 0.7 b 0.7 a 0.5 s 0.5]
+}
+
+rule square {
+    SQUARE [r 45 h 45]
+}`;
+
+export let midSquareGrammar = {
+    startshape: 'init',
+    rules: [
+        {
+            name: 'init',
+            weight: 1,
+            shapes: [
+                {
+                    shape: 'square',
+                    adjustments: {
+                        hue: 100,
+                        saturation: 0.5,
+                        brightness: 0.5
+                    }
+                },
+                {
+                    shape: 'square',
+                    adjustments: {
+                        hue: 200,
+                        saturation: 0.7,
+                        brightness: 0.7,
+                        alpha: 0.5,
+                        size: [0.5, 0.5]
+                    }
+                }
+            ]
+        },
+        {
+            name: 'square',
+            weight: 1,
+            shapes: [
+                {
+                    shape: 'SQUARE',
+                    adjustments: {
+                        rotate: 45,
+                        hue: 45
+                    }
+                }
+            ]
+        }
+    ]
+};
+
+
+export let abcdShapeGrammarStr = `
 // starshape
 startshape D
 
@@ -51,7 +107,7 @@ rule A
   A {x .9 r 120.21 s .99 b .0005 h 2 }
 }`
 
-export let abcdShapeExpected = {
+export let abcdShapeGrammar = {
     "rules": [
         {
             "name": "D",

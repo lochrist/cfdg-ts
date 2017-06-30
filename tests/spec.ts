@@ -369,64 +369,7 @@ describe('grammars', function () {
         expect(g.getRule('init', 0.5)).toBe(g.ruleGroups.get('init')[2]);
         expect(g.getRule('init', 1)).toBe(g.ruleGroups.get('init')[2]);
     });
-
-    
 });
-
-let midSquareGrammar = {
-    startshape: 'init',
-    rules: [
-        {
-            name: 'init',
-            weight: 1,
-            shapes: [
-                {
-                    shape: 'square',
-                    adjustments: {
-                        hue: 100,
-                        saturation: 0.5,
-                        brightness: 0.5
-                    }
-                },
-                {
-                    shape: 'square',
-                    adjustments: {
-                        hue: 200,
-                        saturation: 0.7,
-                        brightness: 0.7,
-                        alpha: 0.5,
-                        size: [0.5, 0.5]
-                    }
-                }
-            ]
-        },
-        {
-            name: 'square',
-            weight: 1,
-            shapes: [
-                {
-                    shape: 'SQUARE',
-                    adjustments: {
-                        rotate: 45,
-                        hue: 45
-                    }
-                }
-            ]
-        }
-    ]
-};
-
-let midSquareGrammarStr = `
-startshape init
-
-rule init {
-    square [h 100 sat 0.5 b 0.5]
-    square [h 200 sat 0.7 b 0.7 a 0.5 s 0.5]
-}
-
-rule square {
-    SQUARE [r 45 h 45]
-}`;
 
 describe('builder', function () {
     describe('parser', function () {
@@ -435,20 +378,20 @@ describe('builder', function () {
         });
 
         it('parse mid square grammar', function () {
-            let grammar = parseGrammar(midSquareGrammarStr);
-            expect(utils.isEqual(grammar, midSquareGrammar, true)).toEqual(true);
+            let grammar = parseGrammar(specData.midSquareGrammarStr);
+            expect(utils.isEqual(grammar, specData.midSquareGrammar, true)).toEqual(true);
         });
 
         it ('parse more complicated grammar', function () {
-            let grammar = parseGrammar(specData.abcdShape);
-            expect(utils.isEqual(grammar, specData.abcdShapeExpected, true)).toEqual(true);
+            let grammar = parseGrammar(specData.abcdShapeGrammarStr);
+            expect(utils.isEqual(grammar, specData.abcdShapeGrammar, true)).toEqual(true);
         });
     });
 });
 
 describe('evaluator', function () {
     it('default evaluator', function () {
-        let grammar = new Grammar(midSquareGrammar);
+        let grammar = new Grammar(specData.midSquareGrammar);
         let evaluator = new Evaluator(grammar);
         expect(evaluator).toBeDefined();
         expect(evaluator.evaluationStack).toEqual([]);
@@ -456,7 +399,7 @@ describe('evaluator', function () {
     });
 
     it('evaluate local transform and local color', function () {
-        let grammar = new Grammar(midSquareGrammar);
+        let grammar = new Grammar(specData.midSquareGrammar);
         let evaluator = new Evaluator(grammar);
         evaluator.evaluate(EvaluationType.RulesSync);
         expect(evaluator.shapes.length).toEqual(2);
