@@ -20,7 +20,6 @@
 - background
 - ensure that grammar can have animation (with a cancel button)
 - examples selector
-- rule parser
 
 ### Stats
 - nb of times each rule is evaluated
