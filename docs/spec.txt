@@ -1,13 +1,13 @@
 startshape fract
 
 rule fract {
-TRIANGLE { }
-fract { y .288 s .5 b 1}
-fract { s .5 r 180 b -1 }
-fract { x -.25 y -.144 s .5 b 1}
-fract { x .25 y -.144 s .5 b 1}
+    TRIANGLE { }
+    fract { y .288 s .5 b 1}
+    fract { s .5 r 180 b -1 }
+    fract { x -.25 y -.144 s .5 b 1}
+    fract { x .25 y -.144 s .5 b 1}
 }
-rule fract .5 {}
+rule fract .5 {}    
 
 
 ----------------------

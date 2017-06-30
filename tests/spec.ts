@@ -3,6 +3,7 @@ import { utils } from '../utils';
 import { Builder, parseGrammar } from '../builder';
 import * as _ from 'lodash';
 import { Evaluator, Rule, ShapeDesc, Grammar, EvaluationType } from '../evaluator';
+import * as specData from './spec-data';
 
 describe('isEqual of doom', function () {
     it ('same value', function () {
@@ -377,30 +378,37 @@ let midSquareGrammar = {
     rules: [
         {
             name: 'init',
+            weight: 1,
             shapes: [
                 {
                     shape: 'square',
                     adjustments: {
-                        h: [100, 0.5, 0.5]
+                        hue: 100,
+                        saturation: 0.5,
+                        brightness: 0.5
                     }
                 },
                 {
                     shape: 'square',
                     adjustments: {
-                        h: [200, 0.7, 0.7, 0.5],
-                        size: 0.5
+                        hue: 200,
+                        saturation: 0.7,
+                        brightness: 0.7,
+                        alpha: 0.5,
+                        size: [0.5, 0.5]
                     }
                 }
             ]
         },
         {
             name: 'square',
+            weight: 1,
             shapes: [
                 {
                     shape: 'SQUARE',
                     adjustments: {
                         rotate: 45,
-                        h: 45
+                        hue: 45
                     }
                 }
             ]
@@ -428,7 +436,12 @@ describe('builder', function () {
 
         it('parse mid square grammar', function () {
             let grammar = parseGrammar(midSquareGrammarStr);
-            expect(grammar).toEqual(midSquareGrammar);
+            expect(utils.isEqual(grammar, midSquareGrammar, true)).toEqual(true);
+        });
+
+        it ('parse more complicated grammar', function () {
+            let grammar = parseGrammar(specData.abcdShape);
+            expect(utils.isEqual(grammar, specData.abcdShapeExpected, true)).toEqual(true);
         });
     });
 });
