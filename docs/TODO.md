@@ -32,3 +32,5 @@
 ### Modes of evaluation
 - Compute all shapes, render all shapes
 - Compute 1 shape, render one shape (with coroutines?)
+
+### support animation
